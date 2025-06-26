@@ -10,5 +10,12 @@
   },
   "dependencies": {
     "astro": "^5.10.1"
+  },
+  "devDependencies": {
+    "@unocss/reset": "^66.3.2",
+    "prettier": "^3.6.1",
+    "prettier-plugin-astro": "^0.14.1",
+    "unocss": "^66.3.2",
+    "unocss-preset-theme": "^0.14.1"
   }
 }
