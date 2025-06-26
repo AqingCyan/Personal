@@ -5,7 +5,7 @@ html {
   scrollbar-gutter: stable;
 }
 
-/* Fix Flash Issue On iOS */
+/* 修复 iOS 上的闪烁问题 */
 body {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
