@@ -98,3 +98,51 @@ async function _getPostsByYear(): Promise<Map<number, Post[]>> {
 
 // 导出记忆化版本
 export const getPostsByYear = memoize(_getPostsByYear)
+
+/**
+ * 按标签分组文章
+ * @returns 以标签名为键、包含该标签的文章数组为值的映射
+ */
+async function _getPostsGroupByTags() {
+  const posts = await getPosts()
+  const tagMap = new Map<string, Post[]>()
+
+  posts.forEach((post: Post) => {
+    post.data.tags?.forEach((tag: string) => {
+      if (!tagMap.has(tag)) {
+        tagMap.set(tag, [])
+      }
+      tagMap.get(tag)!.push(post)
+    })
+  })
+
+  return tagMap
+}
+// 导出记忆化版本
+export const getPostsGroupByTags = memoize(_getPostsGroupByTags)
+
+/**
+ * 获取按文章数量排序的所有标签
+ * @returns 按热度排序的标签数组（文章最多的在前）
+ */
+async function _getAllTags() {
+  const tagMap = await getPostsGroupByTags()
+  const tagsWithCount = Array.from(tagMap.entries())
+
+  tagsWithCount.sort((a, b) => b[1].length - a[1].length)
+  return tagsWithCount.map(([tag]) => tag)
+}
+// 导出记忆化版本
+export const getAllTags = memoize(_getAllTags)
+
+/**
+ * 获取包含特定标签的所有文章
+ * @param tag 用于过滤文章的标签名
+ * @returns 包含指定标签的文章数组
+ */
+async function _getPostsByTag(tag: string) {
+  const tagMap = await getPostsGroupByTags()
+  return tagMap.get(tag) ?? []
+}
+// 导出记忆化版本
+export const getPostsByTag = memoize(_getPostsByTag)

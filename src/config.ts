@@ -12,6 +12,10 @@ export const themeConfig: ThemeConfig = {
     dateFormat: 'YYYY-MM-DD',
     // 默认为所有文章启用目录
     toc: true,
+    // 启用 KaTeX 数学公式渲染
+    katex: true,
+    // 减少动画和过渡效果以提高性能
+    reduceMotion: false,
   },
 
   color: {

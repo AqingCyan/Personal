@@ -7,6 +7,8 @@ export interface ThemeConfig {
     fontStyle: 'sans' | 'serif'
     dateFormat: 'YYYY-MM-DD' | 'MM-DD-YYYY' | 'DD-MM-YYYY' | 'MONTH DAY YYYY' | 'DAY MONTH YYYY'
     toc: boolean
+    katex: boolean
+    reduceMotion: boolean
   }
   color: {
     mode: 'light' | 'dark' | 'auto'

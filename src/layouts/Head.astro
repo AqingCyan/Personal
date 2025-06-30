@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from 'astro:transitions'
 import { themeConfig } from '@/config'
 
 const {
@@ -6,6 +7,7 @@ const {
   light: { background: lightMode },
   dark: { background: darkMode },
 } = themeConfig.color
+const { reduceMotion } = themeConfig.global
 ---
 
 <head>
@@ -32,8 +34,11 @@ const {
   <link rel="preload" href="/fonts/STIX-VF.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/fonts/STIX-Italic-VF.woff2" as="font" type="font/woff2" crossorigin />
 
+  <!-- Global View Transition -->
+  <ClientRouter fallback="none" />
+
   <!-- 主题切换 -->
-  <script is:inline define:vars={{ defaultMode, lightMode, darkMode }}>
+  <script is:inline define:vars={{ defaultMode, lightMode, darkMode, reduceMotion }}>
     // 检查当前主题是否为暗色模式
     // 优先级：本地存储主题 > 默认主题 > 系统偏好
     function isCurrentDark() {
