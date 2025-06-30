@@ -1,4 +1,8 @@
 export interface ThemeConfig {
+  site: {
+    title: string
+    subtitle: string
+  }
   global: {
     fontStyle: 'sans' | 'serif'
     dateFormat: 'YYYY-MM-DD' | 'MM-DD-YYYY' | 'DD-MM-YYYY' | 'MONTH DAY YYYY' | 'DAY MONTH YYYY'

@@ -1,6 +1,10 @@
 import type { ThemeConfig } from '@/types'
 
 export const themeConfig: ThemeConfig = {
+  site: {
+    title: '生活笔记',
+    subtitle: '个人的一点小总结',
+  },
   global: {
     // 文章文本的字体样式
     fontStyle: 'sans',

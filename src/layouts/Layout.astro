@@ -1,6 +1,8 @@
 ---
 import Head from './Head.astro'
 import Button from '@/components/Button.astro'
+import Navbar from '@/components/Navbar.astro'
+import Header from '@/components/Header.astro'
 import '@/styles/global.css'
 import '@/styles/transition.css'
 import '@/styles/font.css'
@@ -15,6 +17,8 @@ import '@/styles/font.css'
       p="x-[min(7.25vw,3.731rem)] y-10"
       lg="mx-[max(5.75rem,calc(50vw-34.25rem))] my-20 max-w-[min(calc(75vw-16rem),44rem)] min-h-full p-0"
     >
+      <Header />
+      <Navbar />
       <main>
         <slot />
       </main>

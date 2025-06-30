@@ -34,3 +34,39 @@ export function isHomePage(path: string) {
 export function isPostPage(path: string) {
   return isPageType(path, 'posts')
 }
+
+/**
+ * 检查当前路径是否为标签页面
+ * @param path 当前路径
+ * @returns 是否为标签页面
+ */
+export function isTagPage(path: string) {
+  return isPageType(path, 'tags')
+}
+/**
+ * 检查当前路径是否为关于页面
+ * @param path 当前路径
+ * @returns 是否为关于页面
+ */
+export function isAboutPage(path: string) {
+  return isPageType(path, 'about')
+}
+
+/**
+ * 返回页面上下文信息
+ * @param path 当前路径
+ * @returns 页面信息对象
+ */
+export function getPageInfo(path: string) {
+  const isHome = isHomePage(path)
+  const isPost = isPostPage(path)
+  const isTag = isTagPage(path)
+  const isAbout = isAboutPage(path)
+
+  return {
+    isHome,
+    isPost,
+    isTag,
+    isAbout,
+  }
+}
