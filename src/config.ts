@@ -1,6 +1,15 @@
 import type { ThemeConfig } from '@/types'
 
 export const themeConfig: ThemeConfig = {
+  global: {
+    // 文章文本的字体样式
+    fontStyle: 'sans',
+    // 文章的日期格式
+    dateFormat: 'YYYY-MM-DD',
+    // 默认为所有文章启用目录
+    toc: true,
+  },
+
   color: {
     // 默认主题模式
     mode: 'light', // light, dark, auto

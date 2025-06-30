@@ -1,8 +1,30 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import Button from '@/components/Button.astro'
+import PostList from '@/components/PostList.astro'
+import { getPinnedPosts, getPostsByYear } from '@/utils/content'
+
+const pinnedPosts = await getPinnedPosts()
+const postsByYear = await getPostsByYear()
 ---
 
 <Layout>
-  <Button />
+  <!-- Pinned Posts -->
+  {
+    pinnedPosts.length > 0 && (
+      <section class="mb-7.5">
+        <div class="uno-decorative-line" />
+        <PostList posts={pinnedPosts} pinned={true} />
+      </section>
+    )
+  }
+
+  <!-- Regular Posts -->
+  {
+    [...postsByYear.entries()].map(([_year, posts]) => (
+      <section class="mb-7.5">
+        <div class="uno-decorative-line" />
+        <PostList posts={posts} />
+      </section>
+    ))
+  }
 </Layout>
