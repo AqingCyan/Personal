@@ -1,0 +1,262 @@
+---
+import type { MarkdownHeading } from 'astro'
+import TocIcon from '@/assets/icons/toc-icon.svg'
+
+interface Props {
+  headings: MarkdownHeading[]
+}
+
+const { headings = [] } = Astro.props
+const filteredHeadings = headings.filter(heading => heading.depth >= 2 && heading.depth <= 4)
+---
+
+{
+  filteredHeadings.length > 0 && (
+    // 目录容器
+    <div
+      id="toc-container"
+      class="mb-6 uno-round-border bg-secondary/5 2xl:(fixed left-0 top-44.5 max-w-[min(calc(50vw-38rem),13rem)] border-none bg-secondary/0)"
+    >
+      {/* 隐藏的复选框 */}
+      <input type="checkbox" id="toc-toggle" hidden />
+      {/* 目录切换 */}
+      <div class="relative h-12 w-full">
+        <label
+          for="toc-toggle"
+          class="absolute inset-0 flex cursor-pointer items-center 2xl:(static flex c-secondary/40 transition-colors ease-out hover:c-secondary/80)"
+        >
+          {/* 移动端标题 */}
+          <span id="toc-mobile-text">目录</span>
+
+          {/* 桌面端图标 */}
+          <TocIcon
+            id="toc-desktop-icon"
+            aria-hidden="true"
+            class="ml-4 hidden aspect-square w-4.2 2xl:(mt-4 block origin-center active:scale-90!)"
+            fill="currentColor"
+          />
+        </label>
+      </div>
+
+      {/* 带手风琴动画的可展开内容包装器 */}
+      <div id="toc-accordion-wrapper">
+        <nav id="toc-accordion-content" aria-label="Table of Contents">
+          {/* 目录列表 */}
+          <ul id="toc-links-list">
+            {filteredHeadings.map(heading => (
+              <li
+                class:list={{
+                  'ml-0': heading.depth === 2,
+                  'ml-4': heading.depth === 3,
+                  'ml-8': heading.depth === 4,
+                }}
+              >
+                <a
+                  href={`#${heading.slug}`}
+                  class:list={[
+                    { 'toc-links-h2 highlight-hover': heading.depth === 2 },
+                    { 'toc-links-h3 highlight-hover': heading.depth === 3 },
+                    { 'toc-links-h4 highlight-hover': heading.depth === 4 },
+                  ]}
+                >
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  )
+}
+
+<!-- 覆盖 heti 默认样式  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
+<style>
+  #toc-mobile-text {
+    --at-apply: 'ml-4 font-semibold 2xl:hidden';
+  }
+  #toc-links-list {
+    --at-apply: 'mb-2.5 mt-1 list-none pl-0 2xl:(mb-1 space-y-1) space-y-1.1';
+  }
+  .toc-links-h2,
+  .toc-links-h3,
+  .toc-links-h4 {
+    --at-apply: 'text-balance text-sm font-normal no-underline after:bottom-0.15em 2xl:(text-3.2 c-secondary/25)';
+    transition:
+      color 0.15s ease-out,
+      font-weight 0.15s ease-out;
+  }
+  .toc-link-active {
+    --at-apply: 'c-secondary/80 font-medium';
+  }
+
+  /* 悬停效果 */
+  #toc-container:hover :is(.toc-links-h2, .toc-links-h3, .toc-links-h4) {
+    --at-apply: '2xl:(c-secondary/60 hover:c-primary) hover:(c-secondary font-medium)';
+  }
+  #toc-container:hover .toc-link-active {
+    --at-apply: '2xl:c-primary';
+  }
+
+  /* 溢出和滚动条 */
+  #toc-toggle:checked ~ #toc-accordion-wrapper #toc-accordion-content {
+    --at-apply: 'overflow-y-auto 2xl:overflow-hidden';
+  }
+  #toc-accordion-content {
+    --at-apply: 'max-h-59.3 overflow-hidden pl-4 pr-6 2xl:(max-h-[calc(100vh-26.75rem)] overflow-y-auto scrollbar-hidden)';
+    scrollbar-width: thin;
+    scrollbar-color: oklch(var(--un-preset-theme-colors-secondary) / 0.15) transparent;
+  }
+  #toc-accordion-content::-webkit-scrollbar {
+    --at-apply: 'hidden';
+  }
+
+  /* 移动端初始状态 */
+  #toc-accordion-wrapper {
+    --at-apply: 'grid rows-[0fr]';
+    transition: grid-template-rows 0.3s ease-in-out;
+  }
+  #toc-toggle:checked ~ #toc-accordion-wrapper {
+    --at-apply: 'rows-[1fr]';
+  }
+
+  /* 桌面端初始状态 */
+  #toc-accordion-wrapper {
+    --at-apply: '2xl:rows-[1fr]';
+  }
+  #toc-toggle:checked ~ #toc-accordion-wrapper {
+    --at-apply: '2xl:rows-[0fr]';
+  }
+</style>
+
+<!-- 目录高亮脚本 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
+<script>
+  function setupTOCHighlight() {
+    const is2xl = window.innerWidth >= 1536
+    if (!is2xl) {
+      return
+    }
+
+    const tocContent = document.getElementById('toc-accordion-content')
+    if (!tocContent) {
+      return
+    }
+
+    const tocLinksCollection = tocContent.getElementsByTagName('a')
+    if (tocLinksCollection.length === 0) {
+      return
+    }
+
+    const tocLinks = Array.from(tocLinksCollection, item => item as HTMLAnchorElement)
+
+    // 确定顶级标题类
+    const hasH2Headings = tocLinks.some(linkItem => linkItem.classList.contains('toc-links-h2'))
+    const topLevelClass = hasH2Headings ? 'toc-links-h2' : 'toc-links-h3'
+
+    // 使用更高效的 forEach 方法构建标题映射
+    const headingMap = new Map<string, HTMLAnchorElement>()
+    tocLinks.forEach(link => {
+      const id = link.getAttribute('href')?.substring(1)
+      if (id) {
+        headingMap.set(id, link)
+      }
+    })
+
+    let currentActiveLink: HTMLAnchorElement | null = null
+
+    // 查找并高亮最近的父级标题
+    function findAndHighlightParent(childElement: HTMLAnchorElement): void {
+      const currentIndex = tocLinks.indexOf(childElement)
+      for (let i = currentIndex - 1; i >= 0; i--) {
+        const linkItem = tocLinks[i]
+        if (linkItem.classList.contains(topLevelClass)) {
+          linkItem.classList.add('toc-link-active')
+          break
+        }
+      }
+    }
+
+    function highlightLink(linkElement: HTMLAnchorElement) {
+      if (linkElement === currentActiveLink) {
+        return
+      }
+
+      // 清除所有高亮
+      tocLinks.forEach(linkItem => {
+        linkItem.classList.remove('toc-link-active')
+      })
+
+      // 高亮当前链接
+      linkElement.classList.add('toc-link-active')
+
+      // 如果不是顶级标题，查找并高亮父级标题
+      if (!linkElement.classList.contains(topLevelClass)) {
+        findAndHighlightParent(linkElement)
+      }
+
+      currentActiveLink = linkElement
+
+      // 滚动到中心位置
+      linkElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      })
+    }
+
+    // 交叉观察器回调
+    const intersectionCallback = (entries: IntersectionObserverEntry[]) => {
+      const headingId = entries.find(entry => entry.isIntersecting)?.target?.id
+      if (headingId) {
+        const link = headingMap.get(headingId)
+        if (link) {
+          highlightLink(link)
+        }
+      }
+    }
+
+    // 创建交叉观察器
+    const headingObserver = new IntersectionObserver(intersectionCallback, {
+      rootMargin: '0% 0% -66% 0%',
+      threshold: [0.4],
+    })
+
+    // 观察所有标题元素
+    Array.from(document.querySelectorAll('h2, h3, h4'))
+      .filter(heading => heading.id && heading.id !== 'footnotes')
+      .forEach(heading => headingObserver.observe(heading))
+
+    // 默认高亮第一个目录项
+    if (tocLinks.length > 0) {
+      highlightLink(tocLinks[0])
+    }
+
+    const postContent = document.getElementById('gsap-post-content')
+    const lastContentElement = postContent?.lastElementChild
+
+    // 如果没有内容元素则退出
+    if (!postContent || !lastContentElement) {
+      return
+    }
+
+    // 创建观察器监控最后一个元素
+    const contentEndObserver = new IntersectionObserver(
+      entries => {
+        // 滚动超过内容时清除高亮
+        if (!entries[0].isIntersecting && entries[0].boundingClientRect.top < 0) {
+          tocLinks.forEach(linkItem => linkItem.classList.remove('toc-link-active'))
+          currentActiveLink = null
+        }
+      },
+      {
+        rootMargin: '0px 0px 0px 0px',
+        threshold: 0,
+      },
+    )
+
+    // 观察最后一个内容元素
+    contentEndObserver.observe(lastContentElement)
+  }
+
+  setupTOCHighlight()
+  document.addEventListener('astro:after-swap', setupTOCHighlight)
+</script>

@@ -1,0 +1,85 @@
+---
+import { getCollection, render } from 'astro:content'
+import PostDate from '@/components/PostDate.astro'
+import TagsWrapper from '@/components/TagsWrapper.astro'
+import BackButton from '@/components/BackButton.astro'
+import TOC from '@/components/TOC.astro'
+import Layout from '@/layouts/Layout.astro'
+import { generateDescription } from '@/utils/description'
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => {
+    // 仅在开发模式下显示草稿
+    return import.meta.env.DEV || !data.draft
+  })
+
+  // 检查是否有重复的 slug
+  const slugSet = new Set()
+  const duplicates: string[] = []
+
+  posts.forEach(post => {
+    const slug = post.data.abbrlink || post.id
+    if (slugSet.has(slug)) {
+      duplicates.push(slug)
+    }
+    slugSet.add(slug)
+  })
+
+  if (duplicates.length > 0) {
+    throw new Error(`Duplicate post slugs: ${duplicates.join(', ')}`)
+  }
+
+  return posts.map(post => ({
+    params: { slug: post.data.abbrlink || post.id },
+    props: { post },
+  }))
+}
+
+const { post } = Astro.props
+const description = generateDescription(post, 'meta')
+const { Content, headings, remarkPluginFrontmatter } = await render(post)
+console.log(remarkPluginFrontmatter)
+---
+
+<Layout postTitle={post.data.title} postDescription={description} postSlug={post.id}>
+  <article class="heti mb-12.6">
+    <div class="relative">
+      <!-- 桌面端返回按钮 -->
+      <BackButton />
+      <!-- 标题 -->
+      <h1 class="post-title">
+        <span transition:name={`post-${post.data.abbrlink || post.id}`} data-disable-theme-transition>
+          {post.data.title}
+        </span>
+      </h1>
+    </div>
+
+    <!-- 日期 -->
+    <div
+      id="gsap-post-date"
+      class="mb-17.2 block c-primary font-time"
+      transition:name={`time-${post.data.abbrlink || post.id}`}
+      data-disable-theme-transition
+    >
+      <PostDate date={post.data.published} updatedDate={post.data.updated} minutes={remarkPluginFrontmatter.minutes} />
+    </div>
+    <!-- 目录 -->
+    {post.data.toc && <TOC headings={headings} />}
+    <!-- 内容 -->
+    <div id="gsap-post-content">
+      <Content />
+    </div>
+  </article>
+
+  <!-- 标签 -->
+  {
+    post.data.tags?.length > 0 && (
+      <div id="gsap-post-tags">
+        <div class="uno-decorative-line" />
+        <TagsWrapper tags={post.data.tags} />
+      </div>
+    )
+  }
+  <!-- 评论 -->
+  <!-- <Comments /> -->
+</Layout>

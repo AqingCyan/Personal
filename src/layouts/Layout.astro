@@ -3,9 +3,15 @@ import Head from './Head.astro'
 import Button from '@/components/Button.astro'
 import Navbar from '@/components/Navbar.astro'
 import Header from '@/components/Header.astro'
+import GsapAnimation from '@/components/GsapAnimation.astro'
+import { themeConfig } from '@/config'
 import '@/styles/global.css'
 import '@/styles/transition.css'
 import '@/styles/font.css'
+import '@/styles/markdown.css'
+import '@/styles/extend.css'
+
+const animationEnabled = !themeConfig.global.reduceMotion
 ---
 
 <!doctype html>
@@ -23,6 +29,7 @@ import '@/styles/font.css'
         <slot />
       </main>
     </div>
+    {animationEnabled && <GsapAnimation />}
     <Button />
   </body>
 </html>
