@@ -28,4 +28,11 @@ export interface ThemeConfig {
       highlight: string
     }
   }
+  footer: {
+    links: {
+      name: string
+      url: string
+    }[]
+    startYear: number
+  }
 }

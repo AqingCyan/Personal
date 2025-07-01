@@ -45,4 +45,29 @@ export const themeConfig: ThemeConfig = {
       highlight: 'oklch(0.93 0.195089 103.2532 / 0.2)', // rgba(255,235,0,0.2)
     },
   },
+
+  // 页脚设置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 开始
+  footer: {
+    // 社交链接
+    links: [
+      {
+        name: 'RSS',
+        url: '/atom.xml', // 或 /rss.xml
+      },
+      {
+        name: 'GitHub',
+        url: 'https://github.com/AqingCyan',
+      },
+      {
+        name: 'Email',
+        url: 'aqingcyan@gmail.com',
+      },
+      // {
+      //   name: 'X',
+      //   url: 'https://x.com/radishzz_',
+      // },
+    ],
+    // 网站开始年份
+    startYear: 2025,
+  },
 }

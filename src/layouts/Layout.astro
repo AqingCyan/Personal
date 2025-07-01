@@ -8,6 +8,7 @@ import SoundEffect from '@/components/SoundEffect.astro'
 import GithubCard from '@/components/GithubCard.astro'
 import CodeCopyButton from '@/components/CodeCopyButton.astro'
 import PhotoSwipe from '@/components/PhotoSwipe.astro'
+import Footer from '@/components/Footer.astro'
 import { themeConfig } from '@/config'
 import '@/styles/global.css'
 import '@/styles/transition.css'
@@ -43,6 +44,7 @@ const animationEnabled = !themeConfig.global.reduceMotion
     </div>
     {animationEnabled && <GsapAnimation />}
     <Button />
+    <Footer />
     <SoundEffect />
     <GithubCard />
     <CodeCopyButton />
