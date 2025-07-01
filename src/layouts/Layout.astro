@@ -12,12 +12,20 @@ import '@/styles/font.css'
 import '@/styles/markdown.css'
 import '@/styles/extend.css'
 
+interface Props {
+  postTitle?: string
+  postDescription?: string
+  postSlug?: string
+}
+
+const { postTitle, postDescription, postSlug } = Astro.props
+
 const animationEnabled = !themeConfig.global.reduceMotion
 ---
 
 <!doctype html>
 <html lang="zh-CN">
-  <Head />
+  <Head {postTitle} {postDescription} {postSlug} />
   <body>
     <div
       class="mx-auto max-w-205.848 min-h-vh w-full min-h-dvh"

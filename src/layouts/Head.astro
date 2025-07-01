@@ -9,13 +9,17 @@ interface Props {
 }
 
 const { postTitle, postDescription, postSlug } = Astro.props
-
+const { title, subtitle, description, author, url } = themeConfig.site
 const {
   mode: defaultMode,
   light: { background: lightMode },
   dark: { background: darkMode },
 } = themeConfig.color
-const { reduceMotion } = themeConfig.global
+const { katex: katexEnabled, reduceMotion } = themeConfig.global
+
+const initMetaTheme = defaultMode === 'dark' ? darkMode : lightMode
+const pageTitle = postTitle ? `${postTitle} | ${title}` : `${title} - ${subtitle}`
+const pageDescription = postDescription || description
 ---
 
 <head>
@@ -27,7 +31,11 @@ const { reduceMotion } = themeConfig.global
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
   <link rel="manifest" href="/site.webmanifest" />
   <meta name="generator" content={Astro.generator} />
-  <title>Astro</title>
+  <title>{pageTitle}</title>
+  <meta name="description" content={pageDescription} />
+  <meta name="author" content={author} />
+  <meta name="generator" content={Astro.generator} />
+  <meta name="theme-color" content={initMetaTheme} />
 
   <!-- 预加载字体 -->
   <link
