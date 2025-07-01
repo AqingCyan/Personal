@@ -188,10 +188,9 @@ export async function generateFeed() {
 /**
  * 生成 RSS 2.0 格式的 feed
  *
- * @param context 包含请求参数的 Astro API 上下文
  * @returns 包含 RSS XML 内容的 Response 对象
  */
-export async function generateRSS(context: APIContext) {
+export async function generateRSS() {
   const feed = await generateFeed()
 
   let rssXml = feed.rss2()
