@@ -4,6 +4,7 @@ import Button from '@/components/Button.astro'
 import Navbar from '@/components/Navbar.astro'
 import Header from '@/components/Header.astro'
 import GsapAnimation from '@/components/GsapAnimation.astro'
+import SoundEffect from '@/components/SoundEffect.astro'
 import { themeConfig } from '@/config'
 import '@/styles/global.css'
 import '@/styles/transition.css'
@@ -31,5 +32,6 @@ const animationEnabled = !themeConfig.global.reduceMotion
     </div>
     {animationEnabled && <GsapAnimation />}
     <Button />
+    <SoundEffect />
   </body>
 </html>

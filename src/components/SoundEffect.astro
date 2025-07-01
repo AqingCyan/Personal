@@ -1,0 +1,156 @@
+<script is:inline>
+  const SOUND_TYPES = {
+    CLICK: 'tap',
+    TYPING: 'type',
+  }
+
+  const CLICK_TARGETS = [
+    '#language-switcher',
+    '#theme-toggle-button',
+    // '#back-button',
+    // '#toc-desktop-icon',
+    // '.heading-anchor-link',
+    // '.code-copy-button',
+  ]
+
+  const TYPING_TARGETS = ['#wl-nick', '#wl-mail', '#wl-link', '#wl-edit']
+
+  const IGNORED_KEYS = ['Shift', 'Control', 'Alt', 'Meta', 'Tab', 'Escape', 'CapsLock']
+
+  const CLICK_SELECTOR = CLICK_TARGETS.join(',')
+  const TYPING_SELECTOR = TYPING_TARGETS.join(',')
+
+  class SoundEffectManager {
+    constructor() {
+      this.audioContext = null
+      this.audioBuffers = new Map()
+      this.isReady = false
+      this.isInitializing = false
+    }
+
+    // 初始化音频上下文并预加载音频文件
+    async initialize() {
+      if (this.isReady || this.isInitializing) {
+        return
+      }
+
+      this.isInitializing = true
+      try {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)()
+        await this.preloadAllSounds()
+        this.isReady = true
+      } catch (error) {
+        console.warn('Audio initialization failed:', error)
+      } finally {
+        this.isInitializing = false
+      }
+    }
+
+    // 预加载所有音效变体
+    async preloadAllSounds() {
+      const soundTypes = Object.values(SOUND_TYPES)
+      const allPromises = soundTypes.flatMap(type =>
+        Array.from({ length: 5 }, (_, i) => this.loadSound(`${type}_0${i + 1}`, `/sounds/${type}_0${i + 1}.wav`)),
+      )
+
+      await Promise.allSettled(allPromises)
+    }
+
+    // 加载并缓存音频文件
+    async loadSound(name, url) {
+      try {
+        const response = await fetch(url)
+        const arrayBuffer = await response.arrayBuffer()
+        const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
+        this.audioBuffers.set(name, audioBuffer)
+      } catch (error) {
+        console.warn(`Failed to load ${name}:`, error)
+      }
+    }
+
+    // 播放指定类型的随机音效
+    async playSound(soundType) {
+      if (!this.isReady && !this.isInitializing) {
+        await this.initialize()
+      }
+
+      if (!this.isReady || !this.audioContext || this.audioBuffers.size === 0) {
+        return
+      }
+
+      try {
+        // 如果音频上下文被暂停则恢复
+        if (this.audioContext.state === 'suspended') {
+          await this.audioContext.resume()
+        }
+
+        // 查找匹配的音频缓冲区
+        const matchingBuffers = Array.from(this.audioBuffers.entries())
+          .filter(([name]) => name.startsWith(soundType))
+          .map(([, buffer]) => buffer)
+
+        if (matchingBuffers.length === 0) {
+          return
+        }
+
+        // 选择随机音效
+        const randomIndex = Math.floor(Math.random() * matchingBuffers.length)
+        const audioBuffer = matchingBuffers[randomIndex]
+
+        // 创建并配置音频节点
+        const source = this.audioContext.createBufferSource()
+        source.buffer = audioBuffer
+        const gainNode = this.audioContext.createGain()
+        gainNode.gain.value = soundType === SOUND_TYPES.TYPING ? 0.4 : 0.8 // 音量控制
+
+        // 连接并播放
+        source.connect(gainNode)
+        gainNode.connect(this.audioContext.destination)
+        source.start(0)
+      } catch (error) {
+        console.warn('Playback failed:', error)
+      }
+    }
+  }
+
+  const soundManager = new SoundEffectManager()
+
+  // 处理交互元素的点击事件
+  function handleGlobalClick(event) {
+    const clickTarget = event.target.closest(CLICK_SELECTOR)
+    if (clickTarget) {
+      soundManager.playSound(SOUND_TYPES.CLICK)
+    }
+  }
+
+  // 处理打字音效的键盘事件
+  function handleGlobalKeydown(event) {
+    if (
+      !event.target.closest(TYPING_SELECTOR) ||
+      event.ctrlKey ||
+      event.altKey ||
+      event.metaKey ||
+      IGNORED_KEYS.includes(event.key)
+    ) {
+      return
+    }
+
+    soundManager.playSound(SOUND_TYPES.TYPING)
+  }
+
+  function setupSoundSystem() {
+    // 在移动设备上禁用音效
+    if (window.matchMedia('(max-width: 1023px)').matches) {
+      return
+    }
+
+    // 重置事件监听器以避免重复
+    document.removeEventListener('click', handleGlobalClick)
+    document.removeEventListener('keydown', handleGlobalKeydown)
+    document.addEventListener('click', handleGlobalClick)
+    document.addEventListener('keydown', handleGlobalKeydown)
+  }
+
+  setupSoundSystem()
+  document.addEventListener('astro:page-load', setupSoundSystem)
+</script>

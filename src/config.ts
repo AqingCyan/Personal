@@ -4,6 +4,9 @@ export const themeConfig: ThemeConfig = {
   site: {
     title: '生活笔记',
     subtitle: '个人的一点小总结',
+    author: 'AqingCyan',
+    description: 'AqingCyan 的个人博客，记录一下生活',
+    url: 'https://aqingcyan.com',
   },
   global: {
     // 文章文本的字体样式

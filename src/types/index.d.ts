@@ -2,6 +2,9 @@ export interface ThemeConfig {
   site: {
     title: string
     subtitle: string
+    author: string
+    description: string
+    url: string
   }
   global: {
     fontStyle: 'sans' | 'serif'

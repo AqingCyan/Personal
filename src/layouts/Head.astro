@@ -2,6 +2,14 @@
 import { ClientRouter } from 'astro:transitions'
 import { themeConfig } from '@/config'
 
+interface Props {
+  postTitle?: string
+  postDescription?: string
+  postSlug?: string
+}
+
+const { postTitle, postDescription, postSlug } = Astro.props
+
 const {
   mode: defaultMode,
   light: { background: lightMode },
