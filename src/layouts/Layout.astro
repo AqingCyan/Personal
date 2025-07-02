@@ -10,6 +10,7 @@ import CodeCopyButton from '@/components/CodeCopyButton.astro'
 import PhotoSwipe from '@/components/PhotoSwipe.astro'
 import Footer from '@/components/Footer.astro'
 import { themeConfig } from '@/config'
+import { getPageInfo } from '@/utils/page'
 import '@/styles/global.css'
 import '@/styles/transition.css'
 import '@/styles/font.css'
@@ -23,12 +24,13 @@ interface Props {
 }
 
 const { postTitle, postDescription, postSlug } = Astro.props
-
 const animationEnabled = !themeConfig.global.reduceMotion
+const fontStyle = themeConfig.global.fontStyle === 'serif' ? 'font-serif' : 'font-sans'
+const { isPost } = getPageInfo(Astro.url.pathname)
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class:list={[fontStyle, { 'scroll-smooth': isPost }]}>
   <Head {postTitle} {postDescription} {postSlug} />
   <body>
     <div
