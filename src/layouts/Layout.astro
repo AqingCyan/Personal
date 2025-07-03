@@ -51,5 +51,70 @@ const { isPost } = getPageInfo(Astro.url.pathname)
     <GithubCard />
     <CodeCopyButton />
     <PhotoSwipe />
+
+    <!-- 全局路由跟踪脚本 -->
+    <script>
+      // 全局路由历史管理
+      const ROUTE_HISTORY_KEY = 'retypeset-route-history'
+      const MAX_HISTORY_LENGTH = 20
+
+      function getCurrentPagePath(): string {
+        return window.location.pathname
+      }
+
+      function getRouteHistory(): string[] {
+        try {
+          const stored = localStorage.getItem(ROUTE_HISTORY_KEY)
+          return stored ? JSON.parse(stored) : []
+        } catch {
+          return []
+        }
+      }
+
+      function saveRouteHistory(history: string[]): void {
+        try {
+          localStorage.setItem(ROUTE_HISTORY_KEY, JSON.stringify(history))
+        } catch {
+          // localStorage 可能不可用，忽略错误
+        }
+      }
+
+      function addToRouteHistory(path: string): void {
+        const history = getRouteHistory()
+        const lastPath = history[history.length - 1]
+
+        // 只有当路径真正变化时才记录
+        if (path !== lastPath) {
+          history.push(path)
+          // 限制历史记录长度
+          if (history.length > MAX_HISTORY_LENGTH) {
+            history.splice(0, history.length - MAX_HISTORY_LENGTH)
+          }
+          saveRouteHistory(history)
+        }
+      }
+
+      function initRouteTracking(): void {
+        const currentPath = getCurrentPagePath()
+        addToRouteHistory(currentPath)
+      }
+
+      function handleRouteChange(): void {
+        const currentPath = getCurrentPagePath()
+        addToRouteHistory(currentPath)
+      }
+
+      // 初始化路由跟踪
+      initRouteTracking()
+
+      // 监听 Astro 路由变化
+      document.addEventListener('astro:after-swap', handleRouteChange)
+
+      // 监听浏览器前进后退
+      window.addEventListener('popstate', handleRouteChange)
+
+      // 暴露全局函数供 BackButton 使用
+      window.getRouteHistory = getRouteHistory
+    </script>
   </body>
 </html>

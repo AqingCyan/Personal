@@ -13,15 +13,39 @@ import GoBackIcon from '@/assets/icons/go-back.svg'
 
 <!-- Go Back Script >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
 <script>
+  import { navigate } from 'astro:transitions/client'
+
   function setupBackButton() {
     document.getElementById('back-button')?.addEventListener('click', () => {
-      // 如果历史记录存在则返回上一页
+      const currentPath = window.location.pathname
+
+      // 从全局路由历史中获取上一个不同的页面路径
+      const getRouteHistory = window.getRouteHistory
+      if (typeof getRouteHistory === 'function') {
+        const history = getRouteHistory() as string[]
+
+        // 从历史记录中找到上一个不同的页面路径
+        let targetPath = null
+        for (let i = history.length - 2; i >= 0; i--) {
+          if (history[i] !== currentPath) {
+            targetPath = history[i]
+            break
+          }
+        }
+
+        if (targetPath) {
+          // 使用 Astro 的 navigate 函数进行路由跳转，保持转换效果
+          navigate(targetPath)
+          return
+        }
+      }
+
+      // 兜底方案：使用浏览器的后退功能
       if (window.history.length > 1) {
         window.history.back()
       } else {
-        // 回退到首页
-        const siteTitleLink = document.getElementById('site-title-link')
-        siteTitleLink?.click()
+        // 最后的兜底方案，回到首页
+        navigate('/')
       }
     })
   }

@@ -19,7 +19,6 @@ async function addMetaToPost(post: CollectionEntry<'posts'>): Promise<Post> {
 
   if (!metaCache.has(cacheKey)) {
     const { remarkPluginFrontmatter } = await render(post)
-    console.log(remarkPluginFrontmatter)
     metaCache.set(cacheKey, remarkPluginFrontmatter as { minutes: number })
   }
 
