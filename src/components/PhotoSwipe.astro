@@ -1,32 +1,57 @@
-<script>
-  import PhotoSwipeLightbox from 'photoswipe/lightbox'
+---
+import photoSwipeLightboxJS from 'photoswipe/lightbox?url'
+import photoSwipeCSS from 'photoswipe/style.css?url'
+import photoSwipeJS from 'photoswipe?url'
+---
 
-  let lightbox: PhotoSwipeLightbox
-  const pswp = import('photoswipe')
+<script
+  is:inline
+  define:vars={{
+    photoSwipeCSS,
+    photoSwipeLightboxJS,
+    photoSwipeJS,
+  }}
+>
+  let lightbox
 
-  function setupPhotoSwipe() {
-    const bodyElement = document.body
-    if (bodyElement.hasAttribute('data-photoswipe-initialized')) {
-      return
+  function loadCSS(url) {
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = url
+    document.head.appendChild(link)
+  }
+
+  async function setupPhotoSwipe() {
+    if (lightbox) {
+      lightbox.destroy()
+      lightbox = null
     }
 
     const article = document.querySelector('article.heti')
-    const images = article?.getElementsByTagName('img') ?? []
+    if (!article) {
+      return
+    }
+
+    const images = article.getElementsByTagName('img')
     if (images.length === 0) {
       return
     }
 
-    const { innerWidth, innerHeight } = window
+    loadCSS(photoSwipeCSS)
+    const [{ default: PhotoSwipeLightbox }, pswp] = await Promise.all([
+      import(photoSwipeLightboxJS),
+      import(photoSwipeJS),
+    ])
 
     lightbox = new PhotoSwipeLightbox({
       gallery: 'article.heti img',
-      pswpModule: () => pswp,
+      pswpModule: () => Promise.resolve(pswp),
       bgOpacity: 0.9,
       padding: {
-        top: innerHeight * 0.1,
-        bottom: innerHeight * 0.1,
-        left: innerWidth * 0.073,
-        right: innerWidth * 0.073,
+        top: window.innerHeight * 0.1,
+        bottom: window.innerHeight * 0.1,
+        left: window.innerWidth * 0.073,
+        right: window.innerWidth * 0.073,
       },
       zoom: false,
       close: false,
@@ -37,16 +62,12 @@
 
     // 设置图片尺寸
     lightbox.addFilter('domItemData', (itemData, element) => {
-      if (!(element instanceof HTMLImageElement)) {
-        return itemData
-      }
-
       // 设置图片源
       itemData.src = element.src
 
       // 设置尺寸，回退到窗口大小
-      itemData.w = Number(element.naturalWidth ?? innerWidth)
-      itemData.h = Number(element.naturalHeight ?? innerHeight)
+      itemData.w = Number(element.naturalWidth ?? window.innerWidth)
+      itemData.h = Number(element.naturalHeight ?? window.innerHeight)
 
       // 设置缩略图源
       itemData.msrc = element.src
@@ -55,17 +76,8 @@
     })
 
     lightbox.init()
-    bodyElement.setAttribute('data-photoswipe-initialized', 'true')
   }
 
-  function lazySetupPhotoSwipe() {
-    if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(setupPhotoSwipe, { timeout: 1000 })
-    } else {
-      requestAnimationFrame(setupPhotoSwipe)
-    }
-  }
-
-  lazySetupPhotoSwipe()
-  document.addEventListener('astro:page-load', lazySetupPhotoSwipe)
+  setupPhotoSwipe()
+  document.addEventListener('astro:page-load', setupPhotoSwipe)
 </script>

@@ -1,6 +1,6 @@
 # 个人网站
 
-基于 [retypeset](https://github.com/radishzzz/astro-theme-retypeset) 的设计和源码改造，去除了国际化和一些不必要的功能。
+基于 [retypeset](https://github.com/radishzzz/astro-theme-retypeset) 的设计和源码改造，去除了国际化和一些本人不需要的功能。
 
 ## TODO
 
